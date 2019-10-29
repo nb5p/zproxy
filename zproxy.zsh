@@ -19,8 +19,14 @@ function shellProxy() {
     }
 }
 
-function sshProxy() {
-
+# Handle config file {{{
+function editConfig() { [[ "$+EDITOR" ]] && $EDITOR $configFile || vi $configFile }
+function getPort() {
+    value=`sed -n '/\['${1:r}'\]/,/^$/p' $configFile \
+        | grep -Ev '\[|\]|^$' \
+        | awk -F '=' '$1 == "'${1:e}'" {print $2}' \
+    `
+    echo $value
 }
 # }}}
 
