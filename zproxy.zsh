@@ -10,11 +10,16 @@ function ipOpt() { echo "Public IP:"; outOpt; echo "Intranet IP:"; inOpt }
 function shellProxy() {
     case $1 {
         (list)
-        [[ ""$HTTP_PROXY"" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
-            && echo "UNSET PROXY"
-        [[ "$HTTP_PROXY" != "" ]] && echo "HTTP_PROXY="$HTTP_PROXY
-        [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
-        [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
+            [[ ""$HTTP_PROXY"" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
+                && echo "UNSET PROXY"
+            [[ "$HTTP_PROXY" != "" ]] && echo "HTTP_PROXY="$HTTP_PROXY
+            [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
+            [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
+        ;;
+        (off) ;;
+        (*)
+            port=`getPort "${1}.http"`
+            export ALL_PROXY=socks5://localhost:${port}
         ;;
     }
 }
@@ -22,7 +27,7 @@ function shellProxy() {
 # Handle config file {{{
 function editConfig() { [[ "$+EDITOR" ]] && $EDITOR $configFile || vi $configFile }
 function getPort() {
-    value=`sed -n '/\['${1:r}'\]/,/^$/p' $configFile \
+    value=`sed -n '/\[:'${1:r}'\]/,/^$/p' $configFile \
         | grep -Ev '\[|\]|^$' \
         | awk -F '=' '$1 == "'${1:e}'" {print $2}' \
     `
