@@ -19,8 +19,8 @@ function shellProxy() {
         ;;
         (off) unset HTTP_PROXY HTTPS_PROXY ALL_PROXY ;;
         (*)
-            hport=`getPort "${1}.http"`
-            sport=`getPort "${1}.socks"`
+            hport=`getValue ":${1}.http"`
+            sport=`getValue ":${1}.socks"`
             export HTTP_PROXY=http://localhost:${hport}
             export HTTPS_PROXY=http://localhost:${hport}
             export ALL_PROXY=socks5://localhost:${sport}
@@ -37,8 +37,8 @@ function handleConfig() {
         ;;
     }
 }
-function getPort() {
-    value=`sed -n '/\[:'${1:r}'\]/,/^$/p' $configFile \
+function getValue() {
+    value=`sed -n '/\['${1:r}'\]/,/^$/p' $configFile \
         | grep -Ev '\[|\]|^$' \
         | awk -F '=' '$1 == "'${1:e}'" {print $2}' \
     `
