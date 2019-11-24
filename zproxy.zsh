@@ -18,12 +18,27 @@ function shellProxy() {
             [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
         ;;
         (off) unset HTTP_PROXY HTTPS_PROXY ALL_PROXY ;;
+        (on) ;;
         (*)
             hport=`getValue ":${1}.http"`
             sport=`getValue ":${1}.socks"`
             export HTTP_PROXY=http://localhost:${hport}
             export HTTPS_PROXY=http://localhost:${hport}
             export ALL_PROXY=socks5://localhost:${sport}
+        ;;
+    }
+}
+# }}}
+
+# Handle NPM {{{
+function npmMirrors() {
+    case $1 {
+        (list) npm config list ;;
+        (off) npm config set registry https://registry.npmjs.org/ ;;
+        (on) ;;
+        (*)
+            mirror=`getValue "@${1}.npm"`
+            npm config set registry $mirror
         ;;
     }
 }
