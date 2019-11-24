@@ -1,4 +1,5 @@
 #!/bin/zsh
+set -x
 
 # Get IP {{{
 function outOpt() { curl -s ip.sb }
@@ -11,7 +12,7 @@ function ipOpt() { echo "Public IP:"; outOpt; echo "Intranet IP:"; inOpt }
 function shellProxy() {
     case $1 {
         (list)
-            [[ ""$HTTP_PROXY"" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
+            [[ "$HTTP_PROXY" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
                 && echo "UNSET PROXY"
             [[ "$HTTP_PROXY" != "" ]] && echo "HTTP_PROXY="$HTTP_PROXY
             [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
@@ -56,9 +57,9 @@ function handleConfig() {
     }
 }
 function getValue() {
-    value=`sed -n '/\['${1:r}'\]/,/^$/p' $configFile \
-        | grep -Ev '\[|\]|^$' \
-        | awk -F '=' '$1 == "'${1:e}'" {print $2}' \
+    value=`sed -n "/\["${1:r}"\]/,/^$/p" $configFile \
+        | grep -Ev "\[|\]|^$" \
+        | awk -F "=" '$1 == "'${1:e}'" {print $2}' \
     `
     echo $value
 }
