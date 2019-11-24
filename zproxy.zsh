@@ -50,6 +50,9 @@ function handleConfig() {
         (edit)
             [[ "$+EDITOR" ]] && $EDITOR $configFile || vi $configFile
         ;;
+        (list)
+            cat $configFile
+        ;;
     }
 }
 function getValue() {
