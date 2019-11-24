@@ -16,10 +16,13 @@ function shellProxy() {
             [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
             [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
         ;;
-        (off) ;;
+        (off) unset HTTP_PROXY HTTPS_PROXY ALL_PROXY ;;
         (*)
-            port=`getPort "${1}.http"`
-            export ALL_PROXY=socks5://localhost:${port}
+            hport=`getPort "${1}.http"`
+            sport=`getPort "${1}.socks"`
+            export HTTP_PROXY=http://localhost:${hport}
+            export HTTPS_PROXY=http://localhost:${hport}
+            export ALL_PROXY=socks5://localhost:${sport}
         ;;
     }
 }
