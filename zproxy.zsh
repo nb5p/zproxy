@@ -7,6 +7,7 @@ function inOpt() { ifconfig \
 function ipOpt() { echo "Public IP:"; outOpt; echo "Intranet IP:"; inOpt }
 # }}}
 
+# Handle Shell {{{
 function shellProxy() {
     case $1 {
         (list)
@@ -26,9 +27,16 @@ function shellProxy() {
         ;;
     }
 }
+# }}}
 
 # Handle config file {{{
-function editConfig() { [[ "$+EDITOR" ]] && $EDITOR $configFile || vi $configFile }
+function handleConfig() {
+    case $1 {
+        (edit)
+            [[ "$+EDITOR" ]] && $EDITOR $configFile || vi $configFile
+        ;;
+    }
+}
 function getPort() {
     value=`sed -n '/\[:'${1:r}'\]/,/^$/p' $configFile \
         | grep -Ev '\[|\]|^$' \
@@ -49,6 +57,15 @@ case $1 {
     (ipi) inOpt ;;
     (ipe) outOpt ;;
     (ip) ipOpt ;;
+
     (shell) shellProxy $2 ;;
-    (edit) editConfig ;;
+    (ssh) sshProxy $2 ;;
+    (git) gitProxy $2 ;;
+
+    (npm) npmMirrors $2 ;;
+    (pip) pipMirrors $2 ;;
+    (brew) brewMirrors $2 ;;
+    (conda) condaMirrors $2 ;;
+
+    (config) handleConfig $2 ;;
 }
