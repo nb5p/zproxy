@@ -45,6 +45,20 @@ function npmMirrors() {
 }
 # }}}
 
+# Handle PIP {{{
+function pipMirrors() {
+    case $1 {
+        (list) pip3 config get global.index-url ;;
+        (off) pip3 config unget global.index-url ;;
+        (on) ;;
+        (*)
+            mirror=`getValue "@${1}.pip"`
+            pip3 config set global.index-url $mirror
+        ;;
+    }
+}
+# }}}
+
 # Handle config file {{{
 function handleConfig() {
     case $1 {
