@@ -66,10 +66,10 @@ function getValue() {
 # }}}
 
 # Get config file location {{{
-if [[ ! -f "./.zproxyrc" ]] { (($+XDG_CONFIG_HOME)) \
+if [[ ! -f "./zproxyrc" ]] { (($+XDG_CONFIG_HOME)) \
     && configFile="$XDG_CONFIG_HOME/zproxy/zproxyrc" \
     || configFile="$HOME/.config/zproxy/zproxyrc"
-} else { configFile="./.zproxyrc" }
+} else { configFile="./zproxyrc" }
 # }}}
 
 case $1 {
