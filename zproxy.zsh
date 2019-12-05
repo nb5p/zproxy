@@ -1,5 +1,5 @@
 #!/bin/zsh
-set -x
+#set -x
 
 # Get IP {{{
 function outOpt() { curl -s ip.sb }
@@ -18,14 +18,22 @@ function shellProxy() {
             [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
             [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
         ;;
-        (off) unset HTTP_PROXY HTTPS_PROXY ALL_PROXY ;;
+        (off)
+            echo "Please run:"
+            echo -n "\e[31;1m"
+            echo -n "  unset HTTP_PROXY HTTPS_PROXY ALL_PROXY"
+            echo "\e[0m"
+        ;;
         (on) ;;
         (*)
-            hport=`getValue ":${1}.http"`
-            sport=`getValue ":${1}.socks"`
-            export HTTP_PROXY=http://localhost:${hport}
-            export HTTPS_PROXY=http://localhost:${hport}
-            export ALL_PROXY=socks5://localhost:${sport}
+            hport=`getValue ${1} http`
+            sport=`getValue ${1} socks`
+            echo "Please run:"
+            echo -n "\e[31;1m"
+            echo -n "  export HTTP_PROXY=http://localhost:${hport}; "
+            echo -n "export HTTPS_PROXY=http://localhost:${hport}; "
+            echo -n "export ALL_PROXY=socks5://localhost:${sport}"
+            echo "\e[0m"
         ;;
     }
 }
@@ -38,7 +46,7 @@ function npmMirrors() {
         (off) npm config set registry https://registry.npmjs.org/ ;;
         (on) ;;
         (*)
-            mirror=`getValue "@${1}.npm"`
+            mirror=`getValue ${1} npm`
             npm config set registry $mirror
         ;;
     }
@@ -52,7 +60,7 @@ function pipMirrors() {
         (off) pip3 config unget global.index-url ;;
         (on) ;;
         (*)
-            mirror=`getValue "@${1}.pip"`
+            mirror=`getValue ${1} pip`
             pip3 config set global.index-url $mirror
         ;;
     }
@@ -71,19 +79,17 @@ function handleConfig() {
     }
 }
 function getValue() {
-    value=`sed -n "/\["${1:r}"\]/,/^$/p" $configFile \
-        | grep -Ev "\[|\]|^$" \
-        | awk -F "=" '$1 == "'${1:e}'" {print $2}' \
-    `
-    echo $value
+    typeset -A hashTab=(${(kvP)1})
+    echo $hashTab[$2]
 }
 # }}}
 
-# Get config file location {{{
-if [[ ! -f "./zproxyrc" ]] { (($+XDG_CONFIG_HOME)) \
-    && configFile="$XDG_CONFIG_HOME/zproxy/zproxyrc" \
-    || configFile="$HOME/.config/zproxy/zproxyrc"
-} else { configFile="./zproxyrc" }
+# Get config file {{{
+if [[ ! -f "./config.zsh" ]] { (($+XDG_CONFIG_HOME)) \
+    && configFile="$XDG_CONFIG_HOME/zproxy/config.zsh" \
+    || configFile="$HOME/.config/zproxy/config.zsh"
+} else { configFile="./config.zsh" }
+source $configFile
 # }}}
 
 case $1 {
