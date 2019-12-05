@@ -1,5 +1,5 @@
 #!/bin/zsh
-#set -x
+# set -x
 
 # Get IP {{{
 function outOpt() { curl -s ip.sb }
