@@ -73,7 +73,7 @@ function npmMirrors() {
 
 # Handle PIP {{{
 function pipMirrors() {
-    { command -v pip > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; exit 31 }
+    { command -v pip3 > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; exit 31 }
     (( ${+pip} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; exit 11 };
     case $1 {
         (list) pip3 config get global.index-url ;;
