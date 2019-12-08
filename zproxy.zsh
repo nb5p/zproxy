@@ -1,4 +1,4 @@
-#!/bin/env zsh
+#!/usr/bin/env zsh
 # set -x
 
 # Get IP {{{
@@ -10,7 +10,8 @@ function ipOpt() { echo "Public IP:"; outOpt; echo "Intranet IP:"; inOpt }
 
 # Handle Shell {{{
 function shellProxy() {
-    (( ${+shell} )) || { echo "Config Error, with \e[31;1mshell\e[0m";
+    what=shell
+    (( ${+shell} )) || { echo "Config Error, with \e[31;1m$what\e[0m";
         exit 11 };
     case $1 {
         (list)
@@ -28,12 +29,14 @@ function shellProxy() {
         ;;
         (on) ;;
         (*)
-            (( $shell[(I)$1] )) || { echo "Config Error, with \e[31;1mshell > $1\e[0m";
+            (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
+                exit 21 }
+            (( $shell[(I)$1] )) || { echo "Config Error, with \e[31;1m$what > $1\e[0m";
                 exit 12 }
-            hport=`getValue ${1} http`
-            sport=`getValue ${1} socks`
+            hport=`getValue $1 http`
+            sport=`getValue $1 socks`
             [[ "$hport" == "" && "$sport" == "" ]] && {
-                echo "Config Error, with \e[31;1mshell > $1 > http|socks\e[0m"; exit 13 }
+                echo "Config Error, with \e[31;1m$what > $1 > http|socks\e[0m"; exit 13 }
             echo "Please run:"
             echo -n "\e[33;1m"
             echo -n "  export HTTP_PROXY=http://localhost:${hport}; "
@@ -47,20 +50,21 @@ function shellProxy() {
 
 # Handle NPM {{{
 function npmMirrors() {
-    { command -v npm } || { echo "Command Error, with \e[31;1mnpm\e[0m"; exit 31 }
-    (( ${+npm} )) || { echo "Config Error, with \e[31;1mnpm\e[0m"; exit 11 };
+    what=npm
+    { command -v npm > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; exit 31 }
+    (( ${+npm} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; exit 11 };
     case $1 {
         (list) npm config list ;;
         (off) npm config set registry https://registry.npmjs.org/ ;;
         (on) ;;
         (*)
-            (( ${+1} )) || { echo "Parameter Error, with \e[31;1mnpm\e[0m";
+            (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
                 exit 21 }
-            (( $npm[(I)$1] )) || { echo "Config Error, with \e[31;1mnpm > $1\e[0m";
+            (( $npm[(I)$1] )) || { echo "Config Error, with \e[31;1m$what > $1\e[0m";
                 exit 12 }
-            mirror=`getValue ${1} npm`
+            mirror=`getValue $1 npm`
             [[ "$mirror" == "" ]] && {
-                echo "Config Error, with \e[31;1mnpm > $1 > mirrors\e[0m"; exit 13 }
+                echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; exit 13 }
             npm config set registry $mirror
         ;;
     }
@@ -69,20 +73,20 @@ function npmMirrors() {
 
 # Handle PIP {{{
 function pipMirrors() {
-    { command -v pip } || { echo "Command Error, with \e[31;1mpip\e[0m"; exit 31 }
-    (( ${+pip} )) || { echo "Config Error, with \e[31;1mpip\e[0m"; exit 11 };
+    { command -v pip > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; exit 31 }
+    (( ${+pip} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; exit 11 };
     case $1 {
         (list) pip3 config get global.index-url ;;
         (off) pip3 config unget global.index-url ;;
         (on) ;;
         (*)
-            (( ${+1} )) || { echo "Parameter Error, with \e[31;1mpip\e[0m";
+            (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
                 exit 21 }
-            (( $pip[(I)$1] )) || { echo "Config Error, with \e[31;1mpip > $1\e[0m";
+            (( $pip[(I)$1] )) || { echo "Config Error, with \e[31;1m$what > $1\e[0m";
                 exit 12 }
-            mirror=`getValue ${1} pip`
+            mirror=`getValue $1 pip`
             [[ "$mirror" == "" ]] && {
-                echo "Config Error, with \e[31;1mnpm > $1 > mirrors\e[0m"; exit 13 }
+                echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; exit 13 }
             pip3 config set global.index-url $mirror
         ;;
     }
@@ -107,7 +111,7 @@ function getValue() {
 # }}}
 
 # Get config file {{{
-if [[ ! -f "./config.zsh" ]] { (($+XDG_CONFIG_HOME)) \
+if [[ ! -f "./config.zsh" ]] { (( ${+XDG_CONFIG_HOME} )) \
     && configFile="$XDG_CONFIG_HOME/zproxy/config.zsh" \
     || configFile="$HOME/.config/zproxy/config.zsh"
 } else { configFile="./config.zsh" }
