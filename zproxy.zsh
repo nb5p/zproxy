@@ -97,7 +97,7 @@ function pipMirrors() {
 function handleConfig() {
     case $1 {
         (edit)
-            (( ${+EDITOR} )) && $EDITOR $configFile || vi $configFile
+            ${+EDITOR:-vi} $configFile
         ;;
         (list)
             cat $configFile
