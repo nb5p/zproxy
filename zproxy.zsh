@@ -73,6 +73,7 @@ function npmMirrors() {
 
 # Handle PIP {{{
 function pipMirrors() {
+    what=pip
     { command -v pip3 > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; exit 31 }
     (( ${+pip} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; exit 11 };
     case $1 {
