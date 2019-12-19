@@ -8,6 +8,10 @@ function inOpt() { ifconfig \
 function ipOpt() { echo "Public IP:"; outOpt; echo "Intranet IP:"; inOpt }
 # }}}
 
+# Scan Port {{{
+function getPortAvailable() { nc -z ${2:-127.0.0.1} $1 }
+# }}}
+
 # Handle Shell {{{
 function shellProxy() {
     what=shell
@@ -27,7 +31,13 @@ function shellProxy() {
             echo -n "  unset HTTP_PROXY HTTPS_PROXY ALL_PROXY"
             echo "\e[0m"
         ;;
-        (on) ;;
+        (on)
+            for element ($shell) {
+                port=`getValue $element socks`
+                getPortAvailable $port
+                [[ "$?" == 0 ]] && echo $port
+            }
+        ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
                 exit 21 }
