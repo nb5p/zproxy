@@ -72,7 +72,9 @@ function npmMirrors() {
     case $1 {
         (list) npm config list ;;
         (off) npm config set registry https://registry.npmjs.org/ ;;
-        (on) ;;
+        (on)
+            npmMirrors ${npm[1]}
+        ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
                 exit 21 }
@@ -95,7 +97,9 @@ function pipMirrors() {
     case $1 {
         (list) pip3 config get global.index-url ;;
         (off) pip3 config unget global.index-url ;;
-        (on) ;;
+        (on)
+            pipMirrors ${pip[1]}
+        ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
                 exit 21 }
@@ -104,7 +108,7 @@ function pipMirrors() {
             mirror=`getValue $1 pip`
             [[ "$mirror" == "" ]] && {
                 echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; exit 13 }
-            pip3 config set global.index-url $mirror
+            pip3 config set global.index-url $mirror > /dev/null
         ;;
     }
 }
