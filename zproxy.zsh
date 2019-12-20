@@ -9,7 +9,7 @@ function ipOpt() { echo "Public IP:"; outOpt; echo "Intranet IP:"; inOpt }
 # }}}
 
 # Scan Port {{{
-function getPortAvailable() { nc -z ${2:-127.0.0.1} $1 }
+function getPortAvailable() { nc -z ${2:-127.0.0.1} $1 &> /dev/null }
 # }}}
 
 # Handle Shell {{{
@@ -35,8 +35,14 @@ function shellProxy() {
             for element ($shell) {
                 port=`getValue $element socks`
                 getPortAvailable $port
-                [[ "$?" == 0 ]] && echo $port
+                [[ "$?" == 0 ]] && {
+                    echo "Using \e[32m$element\e[0m";
+                    shellProxy $element;
+                    allright=1;
+                    break
+                }
             }
+            (( ${+allright} )) || echo "Port error, with \e[31;1m$what > on\e[0m"; exit 14
         ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
