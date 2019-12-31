@@ -39,11 +39,12 @@ function shellProxy() {
                 [[ "$?" == 0 ]] && {
                     echo "Using \e[32m$element\e[0m";
                     shellProxy $element;
+                    unset element
                     allright=1;
                     break
                 }
             }
-            (( ${+allright} )) || { echo "Port error, with \e[31;1m$what > on\e[0m"; return 14 }
+            (( ${+allright} )) && { unset allright } || { echo "Port error, with \e[31;1m$what > on\e[0m"; return 14 }
         ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
@@ -57,8 +58,11 @@ function shellProxy() {
             export HTTP_PROXY=http://localhost:${hport};
             export HTTPS_PROXY=http://localhost:${hport};
             export ALL_PROXY=socks5://localhost:${sport};
+            unset hport
+            unset sport
         ;;
     }
+    unset what
 }
 # }}}
 
@@ -82,8 +86,10 @@ function npmMirrors() {
             [[ "$mirror" == "" ]] && {
                 echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; return 13 }
             npm config set registry $mirror
+            unset mirror
         ;;
     }
+    unset what
 }
 # }}}
 
@@ -107,8 +113,10 @@ function pipMirrors() {
             [[ "$mirror" == "" ]] && {
                 echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; return 13 }
             pip3 config set global.index-url $mirror > /dev/null
+            unset mirror
         ;;
     }
+    unset what
 }
 # }}}
 
@@ -126,15 +134,18 @@ function handleConfig() {
 function getValue() {
     typeset -A hashTab=(${(kvP)1})
     echo $hashTab[$2]
+    unset hashTab
 }
 # }}}
 
 # Get config file {{{
-if [[ ! -f "./config.zsh" ]] { (( ${+XDG_CONFIG_HOME} )) \
-    && configFile="$XDG_CONFIG_HOME/zproxy/config.zsh" \
-    || configFile="$HOME/.config/zproxy/config.zsh"
-} else { configFile="./config.zsh" }
-source $configFile
+if (( ${+__zproxyConfigFile} )) { echo 1 } else {
+    if [[ ! -f "./config.zsh" ]] { (( ${+XDG_CONFIG_HOME} )) \
+        && __zproxyConfigFile="$XDG_CONFIG_HOME/zproxy/config.zsh" \
+        || __zproxyConfigFile="$HOME/.config/zproxy/config.zsh"
+    } else { __zproxyConfigFile="./config.zsh" }
+}
+source $__zproxyConfigFile
 # }}}
 
 case $1 {
@@ -149,6 +160,16 @@ case $1 {
 
     (config) handleConfig $2 ;;
 }
+
+unfunction outOpt
+unfunction inOpt
+unfunction ipOpt
+unfunction getPortAvailable
+unfunction shellProxy
+unfunction npmMirrors
+unfunction pipMirrors
+unfunction handleConfig
+unfunction getValue
 
 # End of function Main
 }
