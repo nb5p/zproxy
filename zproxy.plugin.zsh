@@ -23,16 +23,14 @@ function shellProxy() {
     case $1 {
         (list)
             [[ "$HTTP_PROXY" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
-                && echo "UNSET PROXY"
+                && { echo "UNSET PROXY"; return 0 }
             [[ "$HTTP_PROXY" != "" ]] && echo "HTTP_PROXY="$HTTP_PROXY
             [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
             [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
+            return 0
         ;;
         (off)
-            echo "Please run:"
-            echo -n "\e[33;1m"
-            echo -n "  unset HTTP_PROXY HTTPS_PROXY ALL_PROXY"
-            echo "\e[0m"
+            unset HTTP_PROXY HTTPS_PROXY ALL_PROXY
         ;;
         (on)
             for element ($shell) {
@@ -45,7 +43,7 @@ function shellProxy() {
                     break
                 }
             }
-            (( ${+allright} )) || echo "Port error, with \e[31;1m$what > on\e[0m"; return 14
+            (( ${+allright} )) || { echo "Port error, with \e[31;1m$what > on\e[0m"; return 14 }
         ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
@@ -56,12 +54,9 @@ function shellProxy() {
             sport=`getValue $1 socks`
             [[ "$hport" == "" && "$sport" == "" ]] && {
                 echo "Config Error, with \e[31;1m$what > $1 > http|socks\e[0m"; return 13 }
-            echo "Please run:"
-            echo -n "\e[33;1m"
-            echo -n "  export HTTP_PROXY=http://localhost:${hport}; "
-            echo -n "export HTTPS_PROXY=http://localhost:${hport}; "
-            echo -n "export ALL_PROXY=socks5://localhost:${sport}"
-            echo "\e[0m"
+            export HTTP_PROXY=http://localhost:${hport};
+            export HTTPS_PROXY=http://localhost:${hport};
+            export ALL_PROXY=socks5://localhost:${sport};
         ;;
     }
 }
