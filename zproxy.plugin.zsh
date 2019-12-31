@@ -1,8 +1,18 @@
-#!/usr/bin/env zsh
+function zproxy() {
 # set -x
 
-# Main {{{
-function zproxy() {
+# Author: nb5p (https://github.com/nb5p)
+# License: MIT
+# Issue: https://github.com/nb5p/zproxy/issues
+
+# EXIT CODE
+#  0 - OK
+# 11 - Config Error
+# 12 - Config Error 
+# 13 - Config Error 
+# 14 - Port Not Available
+# 21 - Parameter Error
+# 31 - Command Not Found
 
 # Get IP {{{
 function outOpt() { curl -s ip.sb }
@@ -124,10 +134,10 @@ function pipMirrors() {
 function handleConfig() {
     case $1 {
         (edit)
-            ${+EDITOR:-vi} $configFile
+            ${+EDITOR:-vi} $__zproxyConfigFile
         ;;
         (list)
-            cat $configFile
+            cat $__zproxyConfigFile
         ;;
     }
 }
