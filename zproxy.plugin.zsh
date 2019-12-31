@@ -1,6 +1,9 @@
 #!/usr/bin/env zsh
 # set -x
 
+# Main {{{
+function zproxy() {
+
 # Get IP {{{
 function outOpt() { curl -s ip.sb }
 function inOpt() { ifconfig \
@@ -16,7 +19,7 @@ function getPortAvailable() { nc -z ${2:-127.0.0.1} $1 &> /dev/null }
 function shellProxy() {
     what=shell
     (( ${+shell} )) || { echo "Config Error, with \e[31;1m$what\e[0m";
-        exit 11 };
+        return 11 };
     case $1 {
         (list)
             [[ "$HTTP_PROXY" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
@@ -42,17 +45,17 @@ function shellProxy() {
                     break
                 }
             }
-            (( ${+allright} )) || echo "Port error, with \e[31;1m$what > on\e[0m"; exit 14
+            (( ${+allright} )) || echo "Port error, with \e[31;1m$what > on\e[0m"; return 14
         ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
-                exit 21 }
+                return 21 }
             (( $shell[(I)$1] )) || { echo "Config Error, with \e[31;1m$what > $1\e[0m";
-                exit 12 }
+                return 12 }
             hport=`getValue $1 http`
             sport=`getValue $1 socks`
             [[ "$hport" == "" && "$sport" == "" ]] && {
-                echo "Config Error, with \e[31;1m$what > $1 > http|socks\e[0m"; exit 13 }
+                echo "Config Error, with \e[31;1m$what > $1 > http|socks\e[0m"; return 13 }
             echo "Please run:"
             echo -n "\e[33;1m"
             echo -n "  export HTTP_PROXY=http://localhost:${hport}; "
@@ -67,8 +70,8 @@ function shellProxy() {
 # Handle NPM {{{
 function npmMirrors() {
     what=npm
-    { command -v npm > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; exit 31 }
-    (( ${+npm} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; exit 11 };
+    { command -v npm > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; return 31 }
+    (( ${+npm} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; return 11 };
     case $1 {
         (list) npm config list ;;
         (off) npm config set registry https://registry.npmjs.org/ ;;
@@ -77,12 +80,12 @@ function npmMirrors() {
         ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
-                exit 21 }
+                return 21 }
             (( $npm[(I)$1] )) || { echo "Config Error, with \e[31;1m$what > $1\e[0m";
-                exit 12 }
+                return 12 }
             mirror=`getValue $1 npm`
             [[ "$mirror" == "" ]] && {
-                echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; exit 13 }
+                echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; return 13 }
             npm config set registry $mirror
         ;;
     }
@@ -92,8 +95,8 @@ function npmMirrors() {
 # Handle PIP {{{
 function pipMirrors() {
     what=pip
-    { command -v pip3 > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; exit 31 }
-    (( ${+pip} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; exit 11 };
+    { command -v pip3 > /dev/null } || { echo "Command Error, with \e[31;1m$what\e[0m"; return 31 }
+    (( ${+pip} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; return 11 };
     case $1 {
         (list) pip3 config get global.index-url ;;
         (off) pip3 config unget global.index-url ;;
@@ -102,12 +105,12 @@ function pipMirrors() {
         ;;
         (*)
             (( ${+1} )) || { echo "Parameter Error, with \e[31;1m$what\e[0m";
-                exit 21 }
+                return 21 }
             (( $pip[(I)$1] )) || { echo "Config Error, with \e[31;1m$what > $1\e[0m";
-                exit 12 }
+                return 12 }
             mirror=`getValue $1 pip`
             [[ "$mirror" == "" ]] && {
-                echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; exit 13 }
+                echo "Config Error, with \e[31;1m$what > $1 > mirrors\e[0m"; return 13 }
             pip3 config set global.index-url $mirror > /dev/null
         ;;
     }
@@ -150,4 +153,7 @@ case $1 {
     (pip) pipMirrors $2 ;;
 
     (config) handleConfig $2 ;;
+}
+
+# End of function Main
 }
