@@ -14,6 +14,7 @@ function zproxy() {
 # 21 - Parameter Error
 # 31 - Command Not Found
 # 32 - Config Not Found
+# 33 - Config File Exists
 
 # Get IP {{{
 function outOpt() { checkCMD curl && curl -s ip.sb || return 31 }
@@ -107,7 +108,7 @@ function npmMirrors() {
     checkCMD $what || return 31
     (( ${+npm} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; return 11 }
     case $1 {
-        (list) npm config list ;;
+        (list) npm config get registry ;;
         (off) npm config set registry https://registry.npmjs.org/ ;;
         (on)
             npmMirrors ${npm[1]}
@@ -179,6 +180,9 @@ function handleConfig() {
         (init)
             if [[ ! -f "$ZPROXYCONFIG" ]] {
                 touch $ZPROXYCONFIG
+            } else {
+                echo "File exists"
+                return 33
             }
         ;;
         (where)
@@ -221,6 +225,8 @@ case $1 {
     (config) handleConfig $2 ;;
 }
 
+AFA918BCEB4C4836DD90C4934A9E26C7=`echo $?`
+
 unfunction outOpt
 unfunction inOpt
 unfunction ipOpt
@@ -231,6 +237,9 @@ unfunction npmMirrors
 unfunction pipMirrors
 unfunction handleConfig
 unfunction getValue
+
+[[ "$AFA918BCEB4C4836DD90C4934A9E26C7" != 0 ]] \
+    && return $AFA918BCEB4C4836DD90C4934A9E26C7
 
 # End of function Main
 }
