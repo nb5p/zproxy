@@ -171,10 +171,18 @@ function pipMirrors() {
 function handleConfig() {
     case $1 {
         (edit)
-            ${+EDITOR:-vi} $__zproxyConfigFile
+            ${+EDITOR:-vi} $ZPROXYCONFIG
         ;;
         (list)
-            cat $__zproxyConfigFile
+            cat $ZPROXYCONFIG
+        ;;
+        (init)
+            if [[ ! -f "$ZPROXYCONFIG" ]] {
+                touch $ZPROXYCONFIG
+            }
+        ;;
+        (where)
+            (( ${+ZPROXYCONFIG} )) && echo $ZPROXYCONFIG
         ;;
     }
 }
@@ -186,15 +194,16 @@ function getValue() {
 # }}}
 
 # Get config file {{{
-if (( ${+__zproxyConfigFile} )) {} else {
+if (( ${+ZPROXYCONFIG} )) {} else {
     (( ${+XDG_CONFIG_HOME} )) \
-        && __zproxyConfigFile="$XDG_CONFIG_HOME/zproxy/config.zsh" \
-        || __zproxyConfigFile="$HOME/.config/zproxy/config.zsh"
+        && ZPROXYCONFIG="$XDG_CONFIG_HOME/zproxy/config.zsh" \
+        || ZPROXYCONFIG="$HOME/.config/zproxy/config.zsh"
 }
-if [[ -f "$__zproxyConfigFile" ]] {
-    source $__zproxyConfigFile
+if [[ -f "$ZPROXYCONFIG" ]] {
+    source $ZPROXYCONFIG
 } else {
     echo "Config Not Found in '\$XDG_CONFIG_HOME/zproxy/config.zsh'"
+    echo "You can also use `zproxy config init` to create one"
     return 32
 }
 # }}}
