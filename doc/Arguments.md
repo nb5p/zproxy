@@ -1,0 +1,26 @@
+# Arguments
+
+- zproxy
+  - shell
+    - on  Check ports in order and set the first available port as a proxy.
+    - off  Unset shell proxy.
+    - list  Show shell proxy.
+    - PORT_NAME  Set the specified port as a proxy.
+  - set  [TODO]Set all.
+    - OPT...  [TODO]Set this proxy.
+  - reset  [TODO]Unset all.
+    - proxy  [TODO]Unset all proxy.
+    - mirror  [TODO]Unset all mirror
+  - npm
+    - on  Set the first mirror.
+    - off  Unset npm mirror.
+    - list  Show npm mirror.
+    - MIRROR_NAME  Set the specified mirror.
+  - pip
+    - on  Set the first mirror.
+    - off  Unset pip mirror.
+    - list  Show pip mirror.
+    - MIRROR_NAME  Set the specified mirror.
+  - ip  Show IP address.
+  - ipi  Show intranet IP address.
+  - ipe  Show public IP address.
