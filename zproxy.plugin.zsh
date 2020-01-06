@@ -31,7 +31,7 @@ function ipOpt() { echo "Public IP:"; outOpt; echo "Intranet IP:"; inOpt }
 # MSIC {{{
 function checkCMD() {
     { command -v $1 > /dev/null } || {
-        echo "Command Not Found, with \e[31;1m$1\e[0m"
+        echo "Command Not Found, please install \e[31;1m$1\e[0m"
         return 31
     }
 }
@@ -52,7 +52,7 @@ function shellProxy() {
     case $1 {
         (list)
             [[ "$HTTP_PROXY" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
-                && { echo "UNSET PROXY"; return 0 } \
+                && { return 41 } \
                 || {
                     [[ "$HTTP_PROXY" != "" ]] && echo "HTTP_PROXY="$HTTP_PROXY
                     [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
@@ -76,7 +76,7 @@ function shellProxy() {
                 }
             }
             (( ${+allright} )) && { unset allright } || {
-                echo "Port error, with \e[31;1m$what > on\e[0m"
+                echo "Port Error, with \e[31;1m$what > on\e[0m"
                 return 14
             }
         ;;
@@ -115,7 +115,7 @@ function gitProxy() {
         (list)
             gitHTTP=`git config --global http.proxy`
             gitHTTPS=`git config --global https.proxy`
-            [[ "$gitHTTP" == "" && "$gitHTTPS" == ""]] \
+            [[ "$gitHTTP" == "" && "$gitHTTPS" == "" ]] \
                 && { unset gitHTTP; unset gitHTTPS; return 41 } \
                 || {
                     [[ "$gitHTTP" != "" ]] && echo "http.proxy=$gitHTTP"
@@ -137,7 +137,15 @@ function npmMirrors() {
     checkCMD $what || return 31
     (( ${+npm} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; return 11 }
     case $1 {
-        (list) npm config get registry ;;
+        (list)
+            npmReg=`npm config get registry`
+            [[ "$npmReg" == "" ]] \
+                && { unset npmReg; return 41 } \
+                || {
+                    [[ "$npmReg" != "" ]] && echo $npmReg
+                    unset npmReg
+                }
+        ;;
         (off) npm config set registry https://registry.npmjs.org/ ;;
         (on)
             npmMirrors ${npm[1]}
@@ -170,7 +178,15 @@ function pipMirrors() {
     checkCMD pip3 || return 31
     (( ${+pip} )) || { echo "Config Error, with \e[31;1m$what\e[0m"; return 11 }
     case $1 {
-        (list) pip3 config get global.index-url ;;
+        (list)
+            pipReg=`pip3 config get global.index-url`
+            [[ "$pipReg" == "" ]] \
+                && { unset pipReg; return 41 } \
+                || {
+                    [[ "$pipReg" != "" ]] && echo $pipReg
+                    unset pipReg
+                }
+        ;;
         (off) pip3 config unget global.index-url ;;
         (on)
             pipMirrors ${pip[1]}
