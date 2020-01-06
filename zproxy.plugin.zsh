@@ -15,6 +15,7 @@ function zproxy() {
 # 31 - Command Not Found
 # 32 - Config Not Found
 # 33 - Config File Exists
+# 41 - Unset Proxy
 
 # Get IP {{{
 function outOpt() { checkCMD curl && curl -s ip.sb || return 31 }
@@ -50,13 +51,14 @@ function shellProxy() {
     }
     case $1 {
         (list)
-            [[ "$HTTP_PROXY" == "" && "$HTTPS_PROXY" == "" && \
-                "$ALL_PROXY" == "" ]] && { echo "UNSET PROXY"; return 0 } || {
-                [[ "$HTTP_PROXY" != "" ]] && echo "HTTP_PROXY="$HTTP_PROXY
-                [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
-                [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
-                return 0
-            }
+            [[ "$HTTP_PROXY" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
+                && { echo "UNSET PROXY"; return 0 } \
+                || {
+                    [[ "$HTTP_PROXY" != "" ]] && echo "HTTP_PROXY="$HTTP_PROXY
+                    [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
+                    [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
+                    return 0
+                }
         ;;
         (off)
             unset HTTP_PROXY HTTPS_PROXY ALL_PROXY
@@ -97,6 +99,33 @@ function shellProxy() {
             export ALL_PROXY=socks5://localhost:${sport}
             unset hport; unset sport
         ;;
+    }
+    unset what
+}
+# }}}
+
+# Handle Git {{{
+function gitProxy() {
+    what=git
+    (( ${+git} )) || {
+        echo "Config Error, with \e[31;1m$what\e[0m"
+        return 11
+    }
+    case $1 {
+        (list)
+            gitHTTP=`git config --global http.proxy`
+            gitHTTPS=`git config --global https.proxy`
+            [[ "$gitHTTP" == "" && "$gitHTTPS" == ""]] \
+                && { unset gitHTTP; unset gitHTTPS; return 41 } \
+                || {
+                    [[ "$gitHTTP" != "" ]] && echo "http.proxy=$gitHTTP"
+                    [[ "$gitHTTPS" != "" ]] && echo "https.proxy=$gitHTTPS"
+                    unset gitHTTP; unset gitHTTPS
+                }
+        ;;
+        (off) ;;
+        (on) ;;
+        (*) ;;
     }
     unset what
 }
@@ -218,6 +247,7 @@ case $1 {
     (ip) ipOpt ;;
 
     (shell) shellProxy $2 ;;
+    (git) gitProxy $2 ;;
 
     (npm) npmMirrors $2 ;;
     (pip) pipMirrors $2 ;;
