@@ -76,7 +76,10 @@ function shellProxy() {
                     break
                 }
             }
-            (( ${+allright} )) && { unset allright } || {
+            (( ${+allright} )) && {
+                unset port
+                unset allright
+            } || {
                 echo "Port Error, with \e[31;1m$what > on\e[0m"
                 return 14
             }
@@ -131,8 +134,45 @@ function gitProxy() {
             git config --global --unset https.proxy > /dev/null
             echo "\e[32;1mRemove proxy\e[0m"
         ;;
-        (on) ;;
-        (*) ;;
+        (on)
+            for element ($git) {
+                port=`getValue $element socks`
+                getPortAvailable $port
+                [[ "$?" == 0 ]] && {
+                    echo "Using \e[32m$element\e[0m"
+                    gitProxy $element
+                    unset element
+                    allright=1
+                    break
+                }
+            }
+            (( ${+allright} )) && {
+                unset port
+                unset allright
+            } || {
+                echo "Port Error, with \e[31;1m$what > on\e[0m"
+                return 14
+            }
+        ;;
+        (*)
+            (( ${+1} )) || {
+                echo "Parameter Error, with \e[31;1m$what\e[0m"
+                return 21
+            }
+            (( $shell[(I)$1] )) || {
+                echo "Config Error, with \e[31;1m$what > $1\e[0m"
+                return 12
+            }
+            sport=`getValue $1 socks`
+            [[ "$sport" == "" ]] && {
+                echo "Config Error, with \e[31;1m$what > $1 > socks\e[0m"
+                return 13
+            }
+            git config --global http.proxy "socks5://127.0.0.1:$sport"
+            git config --global https.proxy "socks5://127.0.0.1:$sport"
+            unset sport
+            return 0
+        ;;
     }
     unset what
 }
@@ -296,13 +336,13 @@ unfunction ipOpt
 unfunction checkCMD
 unfunction getPortAvailable
 unfunction shellProxy
+unfunction gitProxy
 unfunction npmMirrors
 unfunction pipMirrors
 unfunction handleConfig
 unfunction getValue
 
-[[ "$AFA918" != 0 ]] \
-    && return $AFA918
+return $AFA918
 
 # End of function Main
 }
