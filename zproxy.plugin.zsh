@@ -15,7 +15,6 @@ function zproxy() {
 # 31 - Command Not Found
 # 32 - Config Not Found
 # 33 - Config File Exists
-# 41 - Unset Proxy
 
 # Get IP {{{
 function outOpt() { checkCMD curl && curl -s ip.sb || return 31 }
@@ -52,8 +51,9 @@ function shellProxy() {
     case $1 {
         (list)
             [[ "$HTTP_PROXY" == "" && "$HTTPS_PROXY" == "" && "$ALL_PROXY" == "" ]] \
-                && { return 41 } \
-                || {
+                && {
+                    echo "\e[33;1mNot set\e[0m"
+                } || {
                     [[ "$HTTP_PROXY" != "" ]] && echo "HTTP_PROXY="$HTTP_PROXY
                     [[ "$HTTPS_PROXY" != "" ]] && echo "HTTPS_PROXY="$HTTPS_PROXY
                     [[ "$ALL_PROXY" != "" ]] && echo "ALL_PROXY="$ALL_PROXY
@@ -62,6 +62,7 @@ function shellProxy() {
         ;;
         (off)
             unset HTTP_PROXY HTTPS_PROXY ALL_PROXY
+            echo "\e[32;1mRemove proxy\e[0m"
         ;;
         (on)
             for element ($shell) {
@@ -118,7 +119,7 @@ function gitProxy() {
             [[ "$gitHTTP" == "" && "$gitHTTPS" == "" ]] \
                 && {
                     unset gitHTTP; unset gitHTTPS;
-                    echo "Not set"
+                    echo "\e[33;1mNot set\e[0m"
                 } || {
                     [[ "$gitHTTP" != "" ]] && echo "http.proxy=$gitHTTP"
                     [[ "$gitHTTPS" != "" ]] && echo "https.proxy=$gitHTTPS"
@@ -126,8 +127,9 @@ function gitProxy() {
                 }
         ;;
         (off)
-            git config --global --unset http.proxy
-            git config --global --unset https.proxy
+            git config --global --unset http.proxy > /dev/null
+            git config --global --unset https.proxy > /dev/null
+            echo "\e[32;1mRemove proxy\e[0m"
         ;;
         (on) ;;
         (*) ;;
@@ -145,13 +147,18 @@ function npmMirrors() {
         (list)
             npmReg=`npm config get registry`
             [[ "$npmReg" == "" ]] \
-                && { unset npmReg; return 41 } \
-                || {
+                && {
+                    unset npmReg
+                    echo "\e[33;1mNot set\e[0m"
+                } || {
                     [[ "$npmReg" != "" ]] && echo $npmReg
                     unset npmReg
                 }
         ;;
-        (off) npm config set registry https://registry.npmjs.org/ ;;
+        (off)
+            npm config set registry https://registry.npmjs.org/
+            echo "\e[32;1mRemove proxy\e[0m"
+        ;;
         (on)
             npmMirrors ${npm[1]}
         ;;
@@ -186,13 +193,18 @@ function pipMirrors() {
         (list)
             pipReg=`pip3 config get global.index-url`
             [[ "$pipReg" == "" ]] \
-                && { unset pipReg; return 41 } \
-                || {
+                && {
+                    unset pipReg
+                    echo "\e[33;1mNot set\e[0m"
+                } || {
                     [[ "$pipReg" != "" ]] && echo $pipReg
                     unset pipReg
                 }
         ;;
-        (off) pip3 config unget global.index-url ;;
+        (off)
+            pip3 config unget global.index-url
+            echo "\e[32;1mRemove proxy\e[0m"
+        ;;
         (on)
             pipMirrors ${pip[1]}
         ;;
