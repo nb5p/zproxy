@@ -116,14 +116,19 @@ function gitProxy() {
             gitHTTP=`git config --global http.proxy`
             gitHTTPS=`git config --global https.proxy`
             [[ "$gitHTTP" == "" && "$gitHTTPS" == "" ]] \
-                && { unset gitHTTP; unset gitHTTPS; return 41 } \
-                || {
+                && {
+                    unset gitHTTP; unset gitHTTPS;
+                    echo "Not set"
+                } || {
                     [[ "$gitHTTP" != "" ]] && echo "http.proxy=$gitHTTP"
                     [[ "$gitHTTPS" != "" ]] && echo "https.proxy=$gitHTTPS"
                     unset gitHTTP; unset gitHTTPS
                 }
         ;;
-        (off) ;;
+        (off)
+            git config --global --unset http.proxy
+            git config --global --unset https.proxy
+        ;;
         (on) ;;
         (*) ;;
     }
@@ -271,7 +276,7 @@ case $1 {
     (config) handleConfig $2 ;;
 }
 
-AFA918BCEB4C4836DD90C4934A9E26C7=`echo $?`
+AFA918=`echo $?`
 
 unfunction outOpt
 unfunction inOpt
@@ -284,8 +289,8 @@ unfunction pipMirrors
 unfunction handleConfig
 unfunction getValue
 
-[[ "$AFA918BCEB4C4836DD90C4934A9E26C7" != 0 ]] \
-    && return $AFA918BCEB4C4836DD90C4934A9E26C7
+[[ "$AFA918" != 0 ]] \
+    && return $AFA918
 
 # End of function Main
 }
