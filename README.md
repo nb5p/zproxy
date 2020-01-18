@@ -32,9 +32,11 @@ $ zplug install
 ## Supported
 
 - Proxy
-  - http_proxy
-  - https_proxy
-  - all_proxy
+  - shell http_proxy
+  - shell https_proxy
+  - shell all_proxy
+  - git http_proxy
+  - git https_proxy
 - Mirror
   - pip3
   - npm
@@ -42,14 +44,31 @@ $ zplug install
 ## Usage
 
 - Set shell proxy `zproxy shell on`
+- Set shell proxy `zproxy git on`
 - Set pip3 mirror `zproxy pip on`
 - Set npm mirror `zproxy npm on`
 
-## Config [WIP]
+## Config
 
 The default configuration directory is `$HOME/.config/zproxy/config.zsh`.
 
 The name of the configuration file is `config.zsh`.
+
+<details>
+  <summary>This is an example configuration file (click to expand)</summary>
+
+```shell
+typeset -A surge=( ["http"]=6152 ["socks"]=6153 )
+typeset -A clash=( ["http"]=7890 ["socks"]=7891 )
+typeset -A taobao=( ["npm"]='https://registry.npm.taobao.org' )
+typeset -A tuna=( ["pip"]='https://pypi.tuna.tsinghua.edu.cn/simple' )
+
+shell=( surge clash )
+git=( surge clash )
+npm=( taobao )
+pip=( tuna )
+```
+</details>
 
 ## License
 The application is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
