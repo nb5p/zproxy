@@ -13,7 +13,7 @@ git clone https://github.com/nb5p/zproxy.git ~/.oh-my-zsh/custom/plugins/zproxy
 Secondly, activate the plugin in `~/.zshrc`. Enable it by adding zsh-proxy to the plugins array.
 
 ```shell
-plugins=( zsh-proxy )
+plugins=( zproxy )
 ```
 
 ### zplug
